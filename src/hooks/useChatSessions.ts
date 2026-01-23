@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ChatSession, Message } from '@/types/chat';
+import { ChatSession, Message, Folder } from '@/types/chat';
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
@@ -9,6 +9,14 @@ const createNewSession = (): ChatSession => ({
   messages: [],
   createdAt: new Date(),
   updatedAt: new Date(),
+  folderId: null,
+});
+
+const createNewFolder = (): Folder => ({
+  id: generateId(),
+  name: 'Nova Pasta',
+  createdAt: new Date(),
+  isExpanded: true,
 });
 
 // Demo sessions for initial state
@@ -77,6 +85,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       ],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-2',
@@ -84,6 +93,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-3',
@@ -91,6 +101,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-4',
@@ -98,6 +109,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-5',
@@ -105,6 +117,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-6',
@@ -112,6 +125,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-7',
@@ -119,6 +133,7 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
     {
       id: 'demo-8',
@@ -126,16 +141,19 @@ Quer que eu te mostre também como calcular a mesma coisa usando o **NLTK**, pra
       messages: [],
       createdAt: yesterday,
       updatedAt: yesterday,
+      folderId: null,
     },
   ];
 };
 
 export function useChatSessions() {
   const [sessions, setSessions] = useState<ChatSession[]>(createDemoSessions);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>('demo-1');
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || null;
 
+  // Session methods
   const createSession = useCallback(() => {
     const newSession = createNewSession();
     setSessions((prev) => [newSession, ...prev]);
@@ -198,13 +216,59 @@ export function useChatSessions() {
     setActiveSessionId(sessionId);
   }, []);
 
+  // Folder methods
+  const createFolder = useCallback((): Folder => {
+    const newFolder = createNewFolder();
+    setFolders((prev) => [newFolder, ...prev]);
+    return newFolder;
+  }, []);
+
+  const renameFolder = useCallback((folderId: string, newName: string) => {
+    setFolders((prev) =>
+      prev.map((folder) =>
+        folder.id === folderId ? { ...folder, name: newName } : folder
+      )
+    );
+  }, []);
+
+  const deleteFolder = useCallback((folderId: string) => {
+    setFolders((prev) => prev.filter((f) => f.id !== folderId));
+  }, []);
+
+  const toggleFolderExpand = useCallback((folderId: string) => {
+    setFolders((prev) =>
+      prev.map((folder) =>
+        folder.id === folderId
+          ? { ...folder, isExpanded: !folder.isExpanded }
+          : folder
+      )
+    );
+  }, []);
+
+  const moveSessionToFolder = useCallback(
+    (sessionId: string, folderId: string | null) => {
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId ? { ...session, folderId } : session
+        )
+      );
+    },
+    []
+  );
+
   return {
     sessions,
+    folders,
     activeSession,
     activeSessionId,
     createSession,
     deleteSession,
     addMessage,
     selectSession,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    toggleFolderExpand,
+    moveSessionToFolder,
   };
 }
