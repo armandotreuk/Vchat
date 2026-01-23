@@ -7,11 +7,16 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 const Index = () => {
   const {
     sessions,
+    folders,
     activeSession,
     activeSessionId,
     createSession,
     addMessage,
     selectSession,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    toggleFolderExpand,
   } = useChatSessions();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -47,9 +52,14 @@ const Index = () => {
       <div className="flex-1 flex overflow-hidden">
         <ChatSidebar
           sessions={sessions}
+          folders={folders}
           activeSessionId={activeSessionId}
           onSelectSession={selectSession}
           onCreateSession={createSession}
+          onCreateFolder={createFolder}
+          onRenameFolder={renameFolder}
+          onToggleFolderExpand={toggleFolderExpand}
+          onDeleteFolder={deleteFolder}
         />
         
         <ChatArea
