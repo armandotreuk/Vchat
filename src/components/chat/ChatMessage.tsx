@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import { Message } from '@/types/chat';
+import type { Message } from '@/types/chat';
 import { CodeBlock } from './CodeBlock';
 
 interface ChatMessageProps {
@@ -73,21 +73,19 @@ export function ChatMessage({ message }: ChatMessageProps) {
             <span className="text-sm text-muted-foreground mr-2">Esta resposta foi útil?</span>
             <button
               onClick={() => setFeedback(feedback === 'up' ? null : 'up')}
-              className={`p-2 rounded-full transition-colors ${
-                feedback === 'up'
+              className={`p-2 rounded-full transition-colors ${feedback === 'up'
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
-              }`}
+                }`}
             >
               <ThumbsUp className="w-4 h-4" />
             </button>
             <button
               onClick={() => setFeedback(feedback === 'down' ? null : 'down')}
-              className={`p-2 rounded-full transition-colors ${
-                feedback === 'down'
+              className={`p-2 rounded-full transition-colors ${feedback === 'down'
                   ? 'bg-destructive/10 text-destructive'
                   : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
-              }`}
+                }`}
             >
               <ThumbsDown className="w-4 h-4" />
             </button>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Folder, MoreVertical } from 'lucide-react';
-import { Folder as FolderType, ChatSession } from '@/types/chat';
+import type { Folder as FolderType, ChatSession } from '@/types/chat';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,27 +46,16 @@ export function FolderItem({
   const {
     attributes,
     listeners,
-    setNodeRef: setSortableRef,
+    setNodeRef,
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({
     id: folder.id,
     data: { type: 'folder', folder },
     disabled: isEditing, // Disable drag while editing
   });
-
-  // Make the folder drop target for sessions
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
-    id: folder.id,
-    data: { type: 'folder', folder },
-  });
-
-  // Combine refs
-  const setNodeRef = (node: HTMLElement | null) => {
-    setSortableRef(node);
-    setDroppableRef(node);
-  };
 
   const style = {
     transform: CSS.Translate.toString(transform),

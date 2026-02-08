@@ -1,11 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
-import { Plus, FolderPlus, MessageSquare } from 'lucide-react';
-import { ChatSession, Folder } from '@/types/chat';
+import { Plus, FolderPlus, MessageSquare, Folder as FolderIcon, LayoutDashboard } from 'lucide-react';
+import type { ChatSession, Folder } from '@/types/chat';
 import { FolderItem } from './FolderItem';
 import { SortableSessionItem } from './SortableSessionItem';
 import {
   DndContext,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -16,6 +15,7 @@ import {
   DragOverEvent,
   DragEndEvent,
   DropAnimation,
+  pointerWithin,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -176,6 +176,13 @@ export function ChatSidebar({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log('DEBUG_DND_V2 handleDragEnd details:', {
+      activeType: active.data.current?.type,
+      overType: over?.data.current?.type,
+      activeId: active.id,
+      overId: over?.id,
+      equal: active.id === over?.id
+    });
 
     // Clear auto-expand timer
     if (hoverTimeoutRef.current) {
@@ -233,7 +240,7 @@ export function ChatSidebar({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
@@ -299,25 +306,13 @@ export function ChatSidebar({
           </SortableContext>
         </div>
 
-        <div className="p-4 border-t border-[hsl(var(--sidebar-border))]">
-          <div
-            className="w-full border-t border-dashed border-[hsl(var(--sidebar-text-muted))] opacity-20 my-2"
-          // Helper area for dropping to root if needed, or visual spacer
-          />
-          <button
-            onClick={onCreateSession}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-[hsl(var(--sidebar-text-muted))] hover:text-[hsl(var(--sidebar-text))] hover:bg-[hsl(var(--sidebar-hover))] rounded-lg transition-colors"
-          >
-            New session
-          </button>
-        </div>
       </aside>
 
       <DragOverlay dropAnimation={dropAnimation}>
         {activeId ? (
           activeItem?.type === 'folder' ? (
             <div className="flex items-center gap-1 px-2 py-2 text-sm rounded-lg bg-[hsl(var(--sidebar-bg))] border border-[hsl(var(--sidebar-border))] shadow-lg opacity-80 w-56">
-              <span className="p-0.5"><Folder className="w-4 h-4 text-[hsl(var(--sidebar-text-muted))]" /></span>
+              <span className="p-0.5"><FolderIcon className="w-4 h-4 text-[hsl(var(--sidebar-text-muted))]" /></span>
               <span className="truncate text-[hsl(var(--sidebar-text))]">{(activeItem.data as Folder).name}</span>
             </div>
           ) : (

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 
-import { ChatSession, Message, Folder } from '@/types/chat';
+import type { ChatSession, Message, Folder } from '@/types/chat';
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
@@ -259,6 +259,7 @@ export function useChatSessions() {
   );
 
   const reorderFolders = useCallback((activeId: string, overId: string) => {
+    console.log('reorderFolders called', { activeId, overId });
     setFolders((prev) => {
       const oldIndex = prev.findIndex((f) => f.id === activeId);
       const newIndex = prev.findIndex((f) => f.id === overId);

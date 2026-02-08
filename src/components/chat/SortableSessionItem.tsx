@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChatSession } from '@/types/chat';
+import type { ChatSession } from '@/types/chat';
 
 interface SortableSessionItemProps {
     session: ChatSession;
@@ -35,8 +35,8 @@ export function SortableSessionItem({
             <button
                 onClick={() => onSelectSession(session.id)}
                 className={`w-full text-left px-3 py-2.5 text-sm rounded-lg mb-1 transition-colors truncate ${isActive
-                        ? 'bg-[hsl(var(--sidebar-active))] text-[hsl(var(--sidebar-active-text))] border-l-2 border-[hsl(var(--sidebar-active-border))]'
-                        : 'text-[hsl(var(--sidebar-text))] hover:bg-[hsl(var(--sidebar-hover))]'
+                    ? 'bg-[hsl(var(--sidebar-active))] text-[hsl(var(--sidebar-active-text))] border-l-2 border-[hsl(var(--sidebar-active-border))]'
+                    : 'text-[hsl(var(--sidebar-text))] hover:bg-[hsl(var(--sidebar-hover))]'
                     }`}
             >
                 {session.title}
