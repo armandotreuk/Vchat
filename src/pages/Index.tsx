@@ -17,6 +17,9 @@ const Index = () => {
     renameFolder,
     deleteFolder,
     toggleFolderExpand,
+    moveSessionToFolder,
+    reorderFolders,
+    reorderSessions,
   } = useChatSessions();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -44,11 +47,11 @@ const Index = () => {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <ChatHeader 
-        title="VitruChat" 
-        subtitle={activeSession?.title || 'Aprenda a Usar'} 
+      <ChatHeader
+        title="VitruChat"
+        subtitle={activeSession?.title || 'Aprenda a Usar'}
       />
-      
+
       <div className="flex-1 flex overflow-hidden">
         <ChatSidebar
           sessions={sessions}
@@ -60,8 +63,11 @@ const Index = () => {
           onRenameFolder={renameFolder}
           onToggleFolderExpand={toggleFolderExpand}
           onDeleteFolder={deleteFolder}
+          onMoveSession={moveSessionToFolder}
+          onReorderFolders={reorderFolders}
+          onReorderSessions={reorderSessions}
         />
-        
+
         <ChatArea
           session={activeSession}
           onSendMessage={handleSendMessage}

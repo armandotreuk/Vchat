@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Folder, MoreVertical } from 'lucide-react';
+import { ChevronRight, Folder, MoreVertical } from 'lucide-react';
 import { Folder as FolderType, ChatSession } from '@/types/chat';
 import {
   DropdownMenu,
@@ -7,6 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { SortableSessionItem } from './SortableSessionItem';
+import { useDroppable } from '@dnd-kit/core';
 
 interface FolderItemProps {
   folder: FolderType;
@@ -20,7 +24,7 @@ interface FolderItemProps {
   onStartEdit: (folderId: string) => void;
 }
 
-const MAX_NAME_LENGTH = 24;
+const MAX_NAME_LENGTH = 30; // UPDATED to 30
 
 export function FolderItem({
   folder,
@@ -38,6 +42,37 @@ export function FolderItem({
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const folderSessions = sessions.filter((s) => s.folderId === folder.id);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: folder.id,
+    data: { type: 'folder', folder },
+    disabled: isEditing, // Disable drag while editing
+  });
+
+  // Make the folder drop target for sessions
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: folder.id,
+    data: { type: 'folder', folder },
+  });
+
+  // Combine refs
+  const setNodeRef = (node: HTMLElement | null) => {
+    setSortableRef(node);
+    setDroppableRef(node);
+  };
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -72,7 +107,7 @@ export function FolderItem({
 
   const handleFolderKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (isEditing) return;
-    
+
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onToggleExpand(folder.id);
@@ -80,11 +115,13 @@ export function FolderItem({
   };
 
   const handleBlur = () => {
+    // If we are dragging, blur might trigger unwanted saves or cancels. 
+    // Usually fine, but if issues arise, check interaction.
     const trimmedValue = editValue.trim();
     if (trimmedValue.length > 0) {
       onRename(folder.id, trimmedValue);
     } else {
-      onCancelEdit();
+      onCancelEdit(); // Or revert to old name if strictly required not empty
     }
   };
 
@@ -95,16 +132,32 @@ export function FolderItem({
     }
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onStartEdit(folder.id);
+  }
+
   return (
-    <div className="mb-1">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="mb-1"
+      {...attributes}
+    >
       <div
         role="button"
         tabIndex={0}
         aria-expanded={folder.isExpanded}
         aria-label={`Pasta ${folder.name}${folderSessions.length > 0 ? `, ${folderSessions.length} conversas` : ''}`}
-        className="flex items-center gap-1 px-2 py-2 text-sm rounded-lg transition-colors hover:bg-[hsl(var(--sidebar-hover))] group cursor-pointer focus:outline-none focus:ring-2 focus:ring-[hsl(var(--sidebar-active-border))] focus:ring-offset-1"
+        // Drag listeners need to be attached to the handle or the whole item
+        // Attaching to the whole item for now, but excluding input
+        // Using `listeners` on this div
+        {...listeners}
+        className={`flex items-center gap-1 px-2 py-2 text-sm rounded-lg transition-colors group cursor-pointer focus:outline-none focus:ring-2 focus:ring-[hsl(var(--sidebar-active-border))] focus:ring-offset-1 ${isOver ? 'bg-[hsl(var(--sidebar-hover))] ring-2 ring-blue-500' : 'hover:bg-[hsl(var(--sidebar-hover))]'
+          }`}
         onClick={() => !isEditing && onToggleExpand(folder.id)}
         onKeyDown={handleFolderKeyDown}
+        onDoubleClick={handleDoubleClick}
       >
         <span
           className="p-0.5 transition-transform duration-200 ease-in-out"
@@ -113,7 +166,7 @@ export function FolderItem({
           <ChevronRight className="w-4 h-4 text-[hsl(var(--sidebar-text-muted))]" />
         </span>
 
-        <Folder className="w-4 h-4 text-[hsl(var(--sidebar-text-muted))] flex-shrink-0" />
+        <Folder className={`w-4 h-4 text-[hsl(var(--sidebar-text-muted))] flex-shrink-0 ${isOver ? 'text-blue-500' : ''}`} />
 
         {isEditing ? (
           <input
@@ -125,6 +178,7 @@ export function FolderItem({
             onBlur={handleBlur}
             className="flex-1 px-1 py-0.5 text-sm bg-[hsl(var(--sidebar-bg))] border border-[hsl(var(--sidebar-border))] rounded text-[hsl(var(--sidebar-text))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--sidebar-active-border))]"
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()} // Prevent drag start on input
             maxLength={MAX_NAME_LENGTH}
           />
         ) : (
@@ -144,6 +198,7 @@ export function FolderItem({
             <button
               className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[hsl(var(--sidebar-hover))] rounded transition-opacity focus:opacity-100"
               onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()} // Prevent drag
               aria-label="Menu da pasta"
             >
               <MoreVertical className="w-4 h-4 text-[hsl(var(--sidebar-text-muted))]" />
@@ -170,7 +225,7 @@ export function FolderItem({
       <div
         className="overflow-hidden transition-all duration-200 ease-in-out"
         style={{
-          maxHeight: folder.isExpanded ? contentHeight : 0,
+          maxHeight: folder.isExpanded ? (contentHeight ? contentHeight + 500 : undefined) : 0, // Add buffer for DnD height changes
           opacity: folder.isExpanded ? 1 : 0,
         }}
       >
@@ -178,28 +233,25 @@ export function FolderItem({
           ref={contentRef}
           className="ml-4 pl-2 border-l border-[hsl(var(--sidebar-border))]"
         >
-          {folderSessions.length === 0 ? (
-            <p className="text-xs text-[hsl(var(--sidebar-text-muted))] py-2 px-2 italic">
-              Arraste conversas para cá
-            </p>
-          ) : (
-            folderSessions.map((session) => {
-              const isActive = session.id === activeSessionId;
-              return (
-                <button
+          <SortableContext
+            items={folderSessions.map(s => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {folderSessions.length === 0 ? (
+              <p className="text-xs text-[hsl(var(--sidebar-text-muted))] py-2 px-2 italic">
+                Arraste conversas para cá
+              </p>
+            ) : (
+              folderSessions.map((session) => (
+                <SortableSessionItem
                   key={session.id}
-                  onClick={() => onSelectSession(session.id)}
-                  className={`w-full text-left px-3 py-2 text-sm rounded-lg mb-1 transition-colors truncate ${
-                    isActive
-                      ? 'bg-[hsl(var(--sidebar-active))] text-[hsl(var(--sidebar-active-text))] border-l-2 border-[hsl(var(--sidebar-active-border))]'
-                      : 'text-[hsl(var(--sidebar-text))] hover:bg-[hsl(var(--sidebar-hover))]'
-                  }`}
-                >
-                  {session.title}
-                </button>
-              );
-            })
-          )}
+                  session={session}
+                  activeSessionId={activeSessionId}
+                  onSelectSession={onSelectSession}
+                />
+              ))
+            )}
+          </SortableContext>
         </div>
       </div>
     </div>
