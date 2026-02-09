@@ -53,7 +53,7 @@ export function SessionDetailDrawer({ interaction, open, onOpenChange }: Session
                                     id: 'msg-1',
                                     role: 'user',
                                     content: interaction.query,
-                                    timestamp: new Date(interaction.date).getTime()
+                                    timestamp: new Date(interaction.date)
                                 }}
                                 isLast={false}
                             />
@@ -62,7 +62,7 @@ export function SessionDetailDrawer({ interaction, open, onOpenChange }: Session
                                     id: 'msg-2',
                                     role: 'assistant',
                                     content: interaction.response,
-                                    timestamp: new Date(interaction.date).getTime() + 2000
+                                    timestamp: new Date(new Date(interaction.date).getTime() + 2000)
                                 }}
                                 isLast={true}
                             />
