@@ -54,7 +54,10 @@ export const CuratorEvaluationPanel = ({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
             />
-            <button className="w-full bg-purple-700 text-white py-2 rounded mt-3 text-sm font-medium hover:bg-purple-800 shadow-sm transition-colors">
+            <button
+                disabled={rating === (defaultValue || 0) && comment === (defaultComment || '') && risk === (isRisk || false)}
+                className="w-full bg-purple-700 text-white py-2 rounded mt-3 text-sm font-medium hover:bg-purple-800 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-700"
+            >
                 Salvar Avaliação
             </button>
         </div>
