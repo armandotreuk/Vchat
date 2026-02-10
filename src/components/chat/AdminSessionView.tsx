@@ -170,6 +170,7 @@ export function AdminSessionView({ sessionData }: AdminSessionViewProps) {
                                 <CuratorEvaluationPanel
                                     defaultValue={null}
                                     isRisk={hasAnyRisk}
+                                    showRiskButton={false}
                                 />
                                 <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">
                                     <h4 className="text-xs font-bold text-blue-800 mb-1 flex items-center gap-1">
