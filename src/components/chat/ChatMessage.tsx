@@ -6,6 +6,7 @@ import { CodeBlock } from './CodeBlock';
 
 interface ChatMessageProps {
   message: Message;
+  isLast?: boolean;
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
@@ -74,8 +75,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
             <button
               onClick={() => setFeedback(feedback === 'up' ? null : 'up')}
               className={`p-2 rounded-full transition-colors ${feedback === 'up'
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
                 }`}
             >
               <ThumbsUp className="w-4 h-4" />
@@ -83,8 +84,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
             <button
               onClick={() => setFeedback(feedback === 'down' ? null : 'down')}
               className={`p-2 rounded-full transition-colors ${feedback === 'down'
-                  ? 'bg-destructive/10 text-destructive'
-                  : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
+                ? 'bg-destructive/10 text-destructive'
+                : 'text-muted-foreground hover:bg-[hsl(var(--feedback-hover))] hover:text-foreground'
                 }`}
             >
               <ThumbsDown className="w-4 h-4" />
